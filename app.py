@@ -184,25 +184,7 @@ with col2:
         if frames:
             st.success(f"✅ 成功提取 {len(frames)} 帧")
 
-            # 保存按钮
-            col_btn1, col_btn2 = st.columns(2)
-
-            with col_btn1:
-                if st.button("💾 保存到文件夹"):
-                    with st.spinner('正在保存...'):
-                        saved_files = save_frames_to_folder(frames, output_folder)
-                        st.success(f"已保存 {len(saved_files)} 张图片到 {output_folder} 文件夹")
-
-            with col_btn2:
-                zip_data = create_zip_file(frames)
-                st.download_button(
-                    label="📦 下载ZIP压缩包",
-                    data=zip_data,
-                    file_name="extracted_frames.zip",
-                    mime="application/zip"
-                )
-
-            # 显示提取的帧
+            # 显示提取的帧，并为每一帧添加下载按钮
             st.markdown("---")
             st.subheader("🖼️ 预览提取的帧")
 
@@ -218,6 +200,19 @@ with col2:
                                 frame_data['frame'],
                                 caption=frame_data['label'],
                                 use_container_width=True
+                            )
+                            # 为每一帧添加下载按钮
+                            img = Image.fromarray(frame_data['frame'])
+                            img_buffer = io.BytesIO()
+                            img.save(img_buffer, format='PNG')
+                            img_buffer.seek(0)
+                            
+                            st.download_button(
+                                label=f"💾 下载第{i+j+1}帧",
+                                data=img_buffer,
+                                file_name=f"frame_{i+j+1}_{frame_data['time']:.2f}s.png",
+                                mime="image/png",
+                                key=f"download_frame_{i+j+1}"
                             )
 
         # 清理临时文件
